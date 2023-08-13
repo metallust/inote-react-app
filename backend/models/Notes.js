@@ -1,8 +1,12 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const noteSchema = new Schema({
-	tilte: {
+	user: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: "user",
+	},
+	title: {
 		type: String,
 		required: true,
 	},
@@ -12,12 +16,8 @@ const noteSchema = new Schema({
 		unqiue: true,
 	},
 	tags: {
-		type: Date,
-		default: "general",
-	},
-	content: {
 		type: String,
-		required: true,
+		default: "general",
 	},
 });
 
