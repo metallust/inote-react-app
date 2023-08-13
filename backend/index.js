@@ -7,7 +7,7 @@ const app = express();
 const port = 5000;
 
 app.get("/", (req, res) => {
-	res.send("Hello World!");
+	res.send("Dont worry API is working");
 });
 
 app.use(express.json());
@@ -15,5 +15,5 @@ app.use("/api/auth", auth);
 app.use("/api/notes", notes);
 
 app.listen(port, () => {
-	console.log(`Example app listening on port ${port}`);
+	console.log(`inote backend running that http://localhost:${port}`);
 });
