@@ -5,12 +5,11 @@ const { body, validationResult } = require("express-validator");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fetchuser = require("../middleware/fetchuser");
-
 const JWT_SECREAT = "bittersweetjoy";
-// define the the router after api/auth/
+
+// define the router after api/auth/
 // Router 1: this is for creating the new user
 router.post(
-	// path
 	"/createuser",
 	// express validator check if the info in the request is valid
 	[
@@ -18,13 +17,14 @@ router.post(
 		body("email", "Give a valid Emal ..").isEmail(),
 		body("password", "Password should be greater than 5 characters").isLength({ min: 5 }),
 	],
-	// function which handles the createuser endpoint
+
 	async (req, res) => {
 		// returning invalid info if any
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			return res.json({ errors: errors.array() });
+			return res.json({ success: false, message: "Invalid inputs", errors: errors.array() });
 		}
+
 		// creating a hash of the password using bcryptjs
 		const salt = await bcryptjs.genSalt(10);
 		const paswordhash = await bcryptjs.hash(req.body.password, salt);
@@ -32,7 +32,7 @@ router.post(
 		try {
 			// checking if the email is already registered
 			let user = await User.findOne({ email: req.body.email });
-			if (user) return res.status(400).json({ error: "Enter another Email id ..." });
+			if (user) return res.status(400).json({ success: false, message: "Enter another Email id ..." });
 
 			// adding the info to the database
 			user = await User.create({
@@ -42,15 +42,13 @@ router.post(
 			});
 
 			// creating a authtoken using jsonwebtoken
-			const data = {
-				user: user.id,
-			};
+			const data = { user: user.id };
 			const authtoken = jwt.sign(data, JWT_SECREAT);
-			res.json({ authtoken });
+			res.json({ success: true, message: "Created user successfully", authtoken });
 			console.log("created user :", user.id);
 		} catch (error) {
 			console.log(error);
-			res.status(500).json({ error: "Some error occured", message: error.message });
+			res.status(500).json({ success: false, message: "Internal server error", message: error.message });
 		}
 	}
 );
@@ -60,38 +58,36 @@ router.post("/login", [body("email", "not a valid email").isEmail(), body("passw
 	// returning invalid info if any
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
-		return res.json({ errors: errors.array() });
+		return res.json({ success: false, message: "Invalid inputs", errors: errors.array() });
 	}
 	try {
 		// fetching the user
 		let user = await User.findOne({ email: req.body.email });
-		if (!user) return res.status(400).json({ error: "Please try login with correct credentials" });
+		if (!user) return res.status(400).json({ success: false, message: "Please try login with correct credentials" });
 		const bcryptjscompare = await bcryptjs.compare(req.body.password, user.password);
-		if (!bcryptjscompare) return res.status(400).json({ error: "Please try login with correct credentials" });
+		if (!bcryptjscompare) return res.status(400).json({ success: false, message: "Please try login with correct credentials" });
 		// creating a authtoken using jsonwebtoken
 		const data = {
 			user: user.id,
 		};
 		const authtoken = jwt.sign(data, JWT_SECREAT);
-		res.json({ authtoken, db: user, user: req.body, bcryptjscompare: bcryptjscompare });
+		res.json({ success: true, message: "User is logged in", authtoken });
 		console.log(user.id, "User logged in");
 	} catch (error) {
 		console.log(error);
-		res.status(500).json({ error: "Some error occured", message: error.message });
+		res.status(500).json({ success: false, message: "Internal server error", message: error.message });
 	}
 });
 
 // Route 3: give user data to authenicated users
-
-// define the about route
 router.post("/getuser", fetchuser, async (req, res) => {
 	try {
 		const userid = req.userid;
 		let user = await User.findById(userid);
-		res.send(user);
+		res.send({ success: true, message: "User info", user });
 	} catch (error) {
 		console.log(error);
-		res.status(500).json({ error: "Some error occured", message: error.message });
+		res.status(500).json({ success: false, message: "Internal server error", message: error.message });
 	}
 });
 

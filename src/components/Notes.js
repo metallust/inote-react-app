@@ -1,13 +1,17 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import noteContext from "../context/notes/noteContext";
 import Noteitem from "./Noteitem";
+import { useNavigate } from "react-router-dom";
 
-function Notes() {
+function Notes(props) {
+	const navigate = useNavigate();
 	const { notes, fetchnotes, updateNote } = useContext(noteContext);
 	const ref = useRef(null);
 	const [newNote, setNewNote] = useState({ title: "", description: "", tags: "" });
 	useEffect(() => {
-		fetchnotes();
+		console.log("use effect in notes.js", localStorage.getItem("token"));
+		if (localStorage.getItem("token")) fetchnotes();
+		else navigate("/login");
 		// eslint-disable-next-line
 	}, []);
 
@@ -58,7 +62,15 @@ function Notes() {
 							<button type="button" className="btn btn-secondary" data-bs-dismiss="modal">
 								Close
 							</button>
-							<button type="button" className="btn btn-primary" data-bs-dismiss="modal" onClick={() => updateNote(newNote)}>
+							<button
+								type="button"
+								className="btn btn-primary"
+								data-bs-dismiss="modal"
+								onClick={() => {
+									updateNote(newNote);
+									props.showAlert("Updated note successfully", "success");
+								}}
+							>
 								Save changes
 							</button>
 						</div>
@@ -69,7 +81,7 @@ function Notes() {
 			<h2>Your Notes</h2>
 			<div className="row my-3">
 				{notes.map((note, index) => (
-					<Noteitem note={note} key={index} editNote={() => editNote(note)} />
+					<Noteitem note={note} key={index} editNote={() => editNote(note)} showAlert={props.showAlert} />
 				))}
 			</div>
 		</>

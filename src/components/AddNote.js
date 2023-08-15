@@ -1,14 +1,14 @@
 import React, { useContext, useState } from "react";
 import noteContext from "../context/notes/noteContext";
 
-const AddNote = () => {
+const AddNote = (props) => {
 	const { addNote } = useContext(noteContext);
 	const [note, setNote] = useState({ title: "", description: "", tags: "General" });
 	const handleAdd = (e) => {
-		console.log(note);
 		e.preventDefault();
 		addNote(note);
 		setNote({ title: "", description: "", tags: "General" });
+		props.showAlert("Note added successfully", "success");
 	};
 	const onChange = (e) => {
 		setNote({ ...note, [e.target.name]: e.target.value });
@@ -17,12 +17,12 @@ const AddNote = () => {
 	return (
 		<>
 			<h2>Add note</h2>
-			<form>
+			<form onSubmit={handleAdd}>
 				<div className="mb-3">
 					<label htmlFor="title" className="form-label">
 						Title
 					</label>
-					<input type="title" className="form-control" id="title" name="title" value={note.title} onChange={onChange} />
+					<input type="title" className="form-control" id="title" name="title" value={note.title} onChange={onChange} minLength={3} required />
 				</div>
 				<div className="mb-3">
 					<label htmlFor="tags" className="form-label">
@@ -34,9 +34,9 @@ const AddNote = () => {
 					<label htmlFor="description" className="form-label">
 						Description
 					</label>
-					<textarea className="form-control" id="description" name="description" value={note.description} onChange={onChange} rows="3"></textarea>
+					<textarea className="form-control" id="description" name="description" value={note.description} onChange={onChange} minLength={3} required rows="3"></textarea>
 				</div>
-				<button type="submit" className="btn btn-secondary" onClick={handleAdd}>
+				<button type="submit" className="btn btn-secondary">
 					Add
 				</button>
 			</form>

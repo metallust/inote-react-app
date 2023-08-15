@@ -1,10 +1,15 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 function Navbar() {
 	let location = useLocation();
+	let navigate = useNavigate();
+	const handlelogout = () => {
+		localStorage.removeItem("token");
+		navigate("/login");
+	};
 	return (
-		<nav className="navbar fixed-top navbar-expand-lg bg-body-tertiary">
+		<nav className="navbar navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
 			<div className="container-fluid">
 				<Link className="navbar-brand" to="/">
 					iNote
@@ -33,12 +38,20 @@ function Navbar() {
 							</Link>
 						</li>
 					</ul>
-					<form className="d-flex" role="search">
-						<input className="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-						<button className="btn btn-outline-success" type="submit">
-							Search
+					{localStorage.getItem("token") ? (
+						<button className="btn btn-primary" onClick={handlelogout}>
+							Logout
 						</button>
-					</form>
+					) : (
+						<>
+							<Link className="btn btn-primary mx-1" to="/login" role="button">
+								Login
+							</Link>
+							<Link className="btn btn-primary mx-1" to="/signup" role="button">
+								SignUp
+							</Link>
+						</>
+					)}
 				</div>
 			</div>
 		</nav>
