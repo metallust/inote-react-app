@@ -47,6 +47,7 @@ router.post(
 			};
 			const authtoken = jwt.sign(data, JWT_SECREAT);
 			res.json({ authtoken });
+			console.log("created user :", user.id);
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ error: "Some error occured", message: error.message });
@@ -73,6 +74,7 @@ router.post("/login", [body("email", "not a valid email").isEmail(), body("passw
 		};
 		const authtoken = jwt.sign(data, JWT_SECREAT);
 		res.json({ authtoken, db: user, user: req.body, bcryptjscompare: bcryptjscompare });
+		console.log(user.id, "User logged in");
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({ error: "Some error occured", message: error.message });

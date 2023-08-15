@@ -10,6 +10,7 @@ router.get("/fetchallnotes", fetchuser, async (req, res) => {
 		const userid = req.userid;
 		const notes = await Notes.find({ user: userid });
 		res.json(notes);
+		console.log(userid, " User fetched all the notes");
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({ error: "Some error occured", message: error.message });
@@ -37,8 +38,9 @@ router.post(
 				tags,
 				user: userid,
 			});
-			let savednotesawait = notes.save();
-			res.json(savednotesawait);
+			let savednotes = await notes.save();
+			res.json(savednotes);
+			console.log(userid, " User added note");
 		} catch (error) {
 			console.log(error);
 			res.status(500).json({ error: "Some error occured", message: error.message });
@@ -50,7 +52,7 @@ router.post(
 router.put("/updatenote/:id", fetchuser, async (req, res) => {
 	const { title, description, tags } = req.body;
 	const userid = req.userid;
-	const noteid = req.params.id;
+	const noteid = req.params.id.trim();
 
 	// creating a new note
 	let newnote = {};
@@ -65,6 +67,7 @@ router.put("/updatenote/:id", fetchuser, async (req, res) => {
 		if (note.user.toString() !== userid) return res.status(401).json({ error: "Not Allowed" });
 		note = await Notes.findByIdAndUpdate(noteid, { $set: newnote }, { new: true });
 		res.json(note);
+		console.log(userid, " User updated note ", noteid);
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({ error: "Internal server error" });
@@ -84,6 +87,7 @@ router.delete("/deletenote/:id", fetchuser, async (req, res) => {
 		if (note.user.toString() !== userid) return res.status(401).json({ error: "Not Allowed" });
 		note = await Notes.findByIdAndDelete(noteid);
 		res.json({ sucess: "deleted", note: note });
+		console.log(userid, " User deleted note ", noteid);
 	} catch (error) {
 		console.log(error);
 		res.status(500).json({ error: "Internal server error" });
